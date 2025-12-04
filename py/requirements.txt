@@ -1,0 +1,12 @@
+# IMA PCR10 Utils - Python Library
+#
+# This library uses only Python standard library modules:
+# - hashlib (hash functions)
+# - struct (binary data structures)
+# - dataclasses (data classes, Python 3.7+)
+# - typing (type hints, Python 3.5+)
+#
+# No external dependencies are required.
+#
+# Python version requirement: Python 3.7 or higher
+# (dataclasses and full typing support are available from Python 3.7)
