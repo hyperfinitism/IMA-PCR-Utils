@@ -21,7 +21,9 @@ Run on the attester environment (Azure VM with vTPM):
 
 ```bash
 # Calculate PCR10 from input IMA log
-# default: /sys/kernel/security/ima/ascii_runtime_measurements
+# Default:
+# /sys/kernel/security/ima/ascii_runtime_measurements
+# sha256 for PCR10 hash chain
 sudo python3 py/examples/pcr10.py
 ```
 
@@ -50,5 +52,7 @@ sudo apt install -y tpm2-tools
 ```
 
 ```bash
+sudo tpm2_pcrread sha1:10
 sudo tpm2_pcrread sha256:10
+sudo tpm2_pcrread sha384:10
 ```

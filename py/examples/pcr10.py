@@ -8,29 +8,39 @@ from py.ima_lib import read_ima_log_file, calculate_pcr10, validate_ima_log_entr
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 
+def set_hash_function(hash_type: str):
+    match hash_type:
+        case "sha1":
+            return hashlib.sha1
+        case "sha256":
+            return hashlib.sha256
+        case "sha384":
+            return hashlib.sha384
+        case "sha512":
+            return hashlib.sha512
+        case _:
+            print(f"Invalid hash type: {hash_type}")
+            return None
+
 def main():
     input_path = input("Enter the path to the IMA log (press Enter for default): ") or DEFAULT_IMA_LOG_PATH
     print(f"Using IMA log path: {input_path}")
+    pcr_hash_type = input("Enter the hash function to use for the PCR10 (default: sha256): ") or "sha256"
     
+    # Set hash function for PCR10 hash chain
+    pcr_hash_func = set_hash_function(pcr_hash_type)
+
     # Read IMA log entries
     entries = read_ima_log_file(input_path, as_stream=False)
-
-    # Validate IMA log entries
-    if validate_ima_log_entries(entries):
-        print("IMA log entries are consistent")
-    else:
-        print("IMA log entries are inconsistent")
-        return False
     
-    # Calculate PCR10 using SHA-256 for both PCR extension and template hash
-    pcr_value_sha256 = calculate_pcr10(
+    # Calculate PCR10
+    pcr_value = calculate_pcr10(
         entries,
-        hash_func=hashlib.sha256,
-        template_hash_func=hashlib.sha256
+        hash_func=pcr_hash_func,
     )
     
-    print(f"Simulated PCR 10 value (SHA-256): {pcr_value_sha256.hex().upper()}")
-
+    print(f"Simulated PCR 10 value ({pcr_hash_type}): {pcr_value.hex().upper()}")
+    
     return True
 
 if __name__ == "__main__":

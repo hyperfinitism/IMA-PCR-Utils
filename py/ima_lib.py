@@ -108,8 +108,7 @@ def calculate_expected_template_hash(
 
 def calculate_pcr10(
     entries: List[IMALogEntry],
-    hash_func: Callable[[bytes], bytes] = hashlib.sha256,
-    template_hash_func: Callable[[bytes], bytes] = hashlib.sha256
+    hash_func: Callable[[bytes], bytes] = hashlib.sha256
 ) -> bytes:
     """
     Calculate PCR10 value from a list of IMA log entries.
@@ -117,8 +116,7 @@ def calculate_pcr10(
     Args:
         entries: List of IMALogEntry structures
         hash_func: Hash function for PCR extension (default: hashlib.sha256)
-        template_hash_func: Hash function for template hash calculation (default: hashlib.sha256)
-
+    
     Returns:
         PCR10 value as bytes
     """
@@ -133,7 +131,7 @@ def calculate_pcr10(
             continue
         # Calculate template hash using the specified hash function
         expected_template_hash = calculate_expected_template_hash(
-            entry, template_hash_func)
+            entry, hash_func)
         # PCR extension (Extend Operation)
         # PCR_new = HASH( PCR_old || Template_Hash )
         pcr_value = hash_func(pcr_value + expected_template_hash).digest()
@@ -191,28 +189,28 @@ def read_ima_log_file(
         return entries
 
 
-def validate_ima_log_entry(entry: IMALogEntry) -> bool:
+def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
     """
     Validate IMA log entry. Template_hash must coincide with SHA-1 hash of the file data.
 
     Args:
         entry: IMALogEntry structure
-
+        hash_func: Hash function to use (default: hashlib.sha1)
     Returns:
         True if entry is valid, False otherwise
     """
     expected_template_hash = calculate_expected_template_hash(
-        entry, hashlib.sha1)
+        entry, hash_func)
     return entry.template_hash == expected_template_hash.hex()
 
 
-def validate_ima_log_entries(entries: List[IMALogEntry]) -> bool:
+def validate_ima_log_entries(entries: List[IMALogEntry], hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
     """
     Validate a list of IMA log entries. All entries must be valid.
 
     Args:
         entries: List of IMALogEntry structures
-
+        hash_func: Hash function to use (default: hashlib.sha1)
     Returns:
         True if all entries are valid, False otherwise  
     """
@@ -222,15 +220,15 @@ def validate_ima_log_entries(entries: List[IMALogEntry]) -> bool:
     return True
 
 
-def validate_ima_log_file(file_path: str) -> bool:
+def validate_ima_log_file(file_path: str, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
     """
     Validate IMA log file. All entries must be valid.
 
     Args:
         file_path: Path to IMA log file
-
+        hash_func: Hash function to use (default: hashlib.sha1)
     Returns:
         True if file is valid, False otherwise
     """
     entries = read_ima_log_file(file_path, as_stream=False)
-    return validate_ima_log_entries(entries)
+    return validate_ima_log_entries(entries, hash_func)
