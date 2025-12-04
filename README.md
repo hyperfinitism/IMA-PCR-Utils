@@ -6,8 +6,8 @@ This project includes the libraries for parsing IMA log entries and calculating 
 
 ```
 IMA-PCR10-Utils/
-├── py/          # Python implementation
-└── samples/     # Sample IMA files
+├── imapcr10/		# Python module
+└── samples/     	# Sample IMA files
 ```
 
 ## Python Usage
@@ -20,11 +20,11 @@ IMA-PCR10-Utils/
 Run on the attester environment (Azure VM with vTPM):
 
 ```bash
-# Calculate PCR10 from input IMA log
+# Calculate PCR10 from input IMA logs
 # Default:
 # /sys/kernel/security/ima/ascii_runtime_measurements
 # sha256 for PCR10 hash chain
-sudo python3 py/examples/pcr10.py
+sudo python3 imapcr10/examples/pcr10.py
 ```
 
 When using the default input, please run it in an Azure VM (i.e. attester) environment where vTPM is available.
@@ -35,7 +35,7 @@ Sample IMA log files located within the `samples/` directory are also available.
 
 ```python
 import hashlib
-from py.ima_lib import read_ima_log_file, calculate_pcr10
+from imapcr10 import read_ima_log_file, calculate_pcr10
 
 entries = read_ima_log_file("/sys/kernel/security/ima/ascii_runtime_measurements")
 pcr_value = calculate_pcr10(entries, hash_func=hashlib.sha256, template_hash_func=hashlib.sha256)
@@ -56,3 +56,80 @@ sudo tpm2_pcrread sha1:10
 sudo tpm2_pcrread sha256:10
 sudo tpm2_pcrread sha384:10
 ```
+
+## Set Custom IMA Policy
+
+### Compile Python scripts
+
+```bash
+# Install Nuitka
+sudo apt install -y pipx
+pipx install nuitka
+
+nuitka imapcr10/examples/pcr10.py
+# => pcr10.bin
+```
+
+### Create/Update IMA Policy
+```bash
+# Make IMA directory if absent
+ls -l /etc/ima
+sudo mkdir -p /etc/ima
+
+# Create/Update IMA Policy
+sudo cp config/ima-policy /etc/ima/ima-policy
+
+# Reboot
+sudo reboot
+```
+
+### Verify Policy Update
+```bash
+# Read initial IMA logs
+sudo cat /sys/kernel/security/ima/ascii_runtime_measurements
+
+# Run (triggering measurement)
+sudo IMA-PCR10-Utils/pcr10.bin
+
+# Read IMA logs again
+# pcr10.bin is measured
+sudo cat /sys/kernel/security/ima/ascii_runtime_measurements
+```
+
+The sample directory contains the IMA logs before and after running `pcr10.bin`.
+
+## Trouble Shooting
+
+### Boot failure after setting IMA policy
+
+Open the serial console for the VM instance in the Azure Portal (boot diagnostics must be enabled). Then retry the procedure that caused the issue. If the following error message appears in the serial console, the IMA policy may be invalid.
+
+```console
+[!!!!!!] Failed to load IMA policy.
+[    3.027439] systemd[1]: Freezing execution.
+```
+
+Create a new VM instance and check whether the IMA policy is valid on that VM:
+
+```bash
+sudo -i
+mkdir -p /etc/ima
+touch /etc/ima/ima-policy
+touch /sys/kernel/security/ima/policy
+
+cat $IMA_POLICY_PATH > /sys/kernel/security/ima/policy
+```
+
+If the policy is valid, the IMA policy will be loaded successfully. Otherwise, the IMA policy is invalid. Check syntax, measured items, etc.
+
+## Test Environment
+- CSP: Azure
+- Machine: DCasv6 (AMD Genoa)
+- Security
+    - Security type: Confidential (SEV-SNP)
+    - Enable secure boot: Enabled
+    - Enable vTPM: Enabled
+    - Integrity monitoring: Enabled
+- OS Image: Ubuntu Server 24.04 LTS (Confidential VM) - x64 Gen2
+- Diagnostics
+	- Boot diagnostics: Enable with managed storage account
