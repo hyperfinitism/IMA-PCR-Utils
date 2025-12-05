@@ -4,7 +4,7 @@ import os
 
 # Add parent directory to path to import from py package
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
-from py.ima_lib import read_ima_log_file, calculate_pcr10, validate_ima_log_entries
+from imapcr10 import read_ima_log_file, calculate_pcr10
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 

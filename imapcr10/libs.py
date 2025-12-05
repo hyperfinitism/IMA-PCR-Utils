@@ -116,7 +116,7 @@ def calculate_pcr10(
     Args:
         entries: List of IMALogEntry structures
         hash_func: Hash function for PCR extension (default: hashlib.sha256)
-    
+
     Returns:
         PCR10 value as bytes
     """
