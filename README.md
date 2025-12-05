@@ -1,16 +1,16 @@
 # IMA PCR10 Utils
 
-This project includes the libraries for parsing IMA log entries and calculating PCR10 values.
+This project includes the Python libraries for parsing IMA log entries and calculating PCR10 values.
 
 ## Project Structure
 
 ```
 IMA-PCR10-Utils/
-├── imapcr10/		# Python module
+├── imapcr10/		# Python module with example script
 └── samples/     	# Sample IMA files
 ```
 
-## Python Usage
+## Usage
 
 ### Requirements
 - Python 3.7+ (Tested with Python 3.12.3)
@@ -57,20 +57,11 @@ sudo tpm2_pcrread sha256:10
 sudo tpm2_pcrread sha384:10
 ```
 
-## Set Custom IMA Policy
-
-### Compile Python scripts
-
-```bash
-# Install Nuitka
-sudo apt install -y pipx
-pipx install nuitka
-
-nuitka imapcr10/examples/pcr10.py
-# => pcr10.bin
-```
+## Setting Custom IMA Policy
 
 ### Create/Update IMA Policy
+The bundled policy `config/ima-policy` is configured to measure files executed at runtime.
+
 ```bash
 # Make IMA directory if absent
 ls -l /etc/ima
@@ -89,11 +80,31 @@ sudo reboot
 sudo cat /sys/kernel/security/ima/ascii_runtime_measurements
 
 # Run (triggering measurement)
-sudo IMA-PCR10-Utils/pcr10.bin
+sudo tpm2_pcrread sha256:10
 
 # Read IMA logs again
-# pcr10.bin is measured
+# files related to tpm2-tools are measured
 sudo cat /sys/kernel/security/ima/ascii_runtime_measurements
+```
+
+### Compile Python scripts
+In the bundled policy file, the following rule is commented out:
+
+```plaintext
+measure func=FILE_CHECK mask=MAY_READ uid=0
+```
+
+This rule would generate an enormous volume of IMA logs, as it would measure every file read by `uid=0` (root).
+
+To measure Python scripts (at runtime) with the bundled policy, the script must be pre-compiled to generate an executable file.
+
+```bash
+# Install Nuitka
+sudo apt install -y pipx
+pipx install nuitka
+
+nuitka imapcr10/examples/pcr10.py
+# => pcr10.bin
 ```
 
 The sample directory contains the IMA logs before and after running `pcr10.bin`.
