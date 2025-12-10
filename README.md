@@ -6,8 +6,8 @@ This project includes the Python libraries for parsing IMA log entries and calcu
 
 ```
 IMA-PCR10-Utils/
-├── imapcr10/		# Python module with example script
-└── samples/     	# Sample IMA files
+├── imapcr10/		# Python module
+└── samples/     	# Example scripts and IMA logs
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ IMA-PCR10-Utils/
 
 ### Calculating PCR10 from IMA logs
 
-Run on the attester environment (Azure VM with vTPM):
+You can calculate PCR10 values from IMA log files using the example script.
 
 ```bash
 # Calculate PCR10 from input IMA logs
@@ -30,9 +30,11 @@ sudo python3 examples/pcr10.py
 
 When using the default input, please run it in an Azure VM (i.e. attester) environment where vTPM is available.
 
-Sample IMA log files located within the `samples/` directory are also available.
+Sample input IMA logs located within the `examples/` directory are also available.
 
-### Using as a library
+### Using as a Python module
+
+The Python module `imapcr10` provides functionality for parsing IMA logs and calculating PCR10. It can be used as follows:
 
 ```python
 import hashlib
