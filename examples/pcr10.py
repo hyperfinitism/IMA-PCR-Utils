@@ -31,7 +31,7 @@ def main():
     pcr_hash_func = set_hash_function(pcr_hash_type)
 
     # Read IMA log entries
-    entries = read_ima_log_file(input_path, as_stream=False)
+    entries = read_ima_log_file(input_path)
     
     # Calculate PCR10
     pcr_value = calculate_pcr10(

@@ -50,6 +50,23 @@ def parse_ima_log_line(line: str) -> Optional[IMALogEntry]:
     )
 
 
+def parse_ima_logs(log_string: str) -> List[IMALogEntry]:
+    """
+    Parse a string of IMA log entries and convert it to a list of IMALogEntry structures.
+
+    Args:
+        log_string: A string of IMA log entries
+
+    Returns:
+    """
+    entries = []
+    for line in log_string.split('\n'):
+        entry = parse_ima_log_line(line)
+        if entry is not None:
+            entries.append(entry)
+    return entries
+
+
 def build_template_fields(entry: IMALogEntry) -> Tuple[bytes, bytes, bytes, bytes]:
     """
     Build d_ng_content, d_ng_field, n_ng_content, n_ng_field from IMA log entry.
@@ -140,53 +157,31 @@ def calculate_pcr10(
 
 def read_ima_log_file(
     file_path: str,
-    as_stream: bool = False,
     encoding: str = 'utf-8',
     errors: str = 'ignore'
-) -> Union[List[IMALogEntry], Iterator[IMALogEntry]]:
+) -> List[IMALogEntry]:
     """
-    Read IMA log file and convert to list of IMALogEntry or stream of IMALogEntry.
+    Read IMA log file and convert to list of IMALogEntry.
 
     Args:
         file_path: Path to IMA log file
-        as_stream: If True, return a generator (memory-efficient). If False, return a list.
         encoding: File encoding (default: 'utf-8')
         errors: Error handling mode (default: 'ignore')
 
     Returns:
-        List of IMALogEntry if as_stream=False, Iterator of IMALogEntry if as_stream=True
+        List of IMALogEntry
 
     Raises:
         FileNotFoundError: If file does not exist
         PermissionError: If permission denied
     """
-    def _read_as_stream() -> Iterator[IMALogEntry]:
-        """Generator function for streaming IMA log entries."""
-        try:
-            with open(file_path, 'r', encoding=encoding, errors=errors) as f:
-                for line in f:
-                    entry = parse_ima_log_line(line)
-                    if entry is not None:
-                        yield entry
-        except PermissionError:
-            raise PermissionError(f"Permission denied: {
-                                  file_path}. Please run with sudo or add read permission to the file.")
-    if as_stream:
-        return _read_as_stream()
-    else:
-        try:
-            with open(file_path, 'r', encoding=encoding, errors=errors) as f:
-                lines = f.readlines()
-        except PermissionError:
-            raise PermissionError(f"Permission denied: {
-                                  file_path}. Please run with sudo or add read permission to the file.")
-
-        entries = []
-        for line in lines:
-            entry = parse_ima_log_line(line)
-            if entry is not None:
-                entries.append(entry)
-        return entries
+    try:
+        with open(file_path, 'r', encoding=encoding, errors=errors) as f:
+            lines = f.read()
+            return parse_ima_logs(lines)
+    except PermissionError:
+        raise PermissionError(f"Permission denied: {
+                              file_path}. Please run with sudo or add read permission to the file.")
 
 
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
@@ -230,5 +225,5 @@ def validate_ima_log_file(file_path: str, hash_func: Callable[[bytes], bytes] = 
     Returns:
         True if file is valid, False otherwise
     """
-    entries = read_ima_log_file(file_path, as_stream=False)
+    entries = read_ima_log_file(file_path)
     return validate_ima_log_entries(entries, hash_func)
