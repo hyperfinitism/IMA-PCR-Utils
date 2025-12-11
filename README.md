@@ -115,7 +115,7 @@ nuitka <PYTHON_SCRIPT_FILE>.py
 # => <PYTHON_SCRIPT_FILE>.bin
 ```
 
-The sample directory contains the IMA logs before and after running `pcr10.bin` (built from `examples/pcr10.py`).
+The example directory contains the IMA logs before and after running `pcr10.bin` (built from `examples/pcr10.py`).
 
 ```bash
 # pcr10.py => pcr10.bin

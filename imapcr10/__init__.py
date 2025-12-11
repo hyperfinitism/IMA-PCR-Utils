@@ -7,6 +7,7 @@ This package provides functions for parsing IMA log entries and calculating PCR1
 from .libs import (
     IMALogEntry,
     parse_ima_log_line,
+    parse_ima_logs,
     build_template_fields,
     calculate_expected_template_hash,
     calculate_pcr10,
@@ -19,6 +20,7 @@ from .libs import (
 __all__ = [
     'IMALogEntry',
     'parse_ima_log_line',
+    'parse_ima_logs',
     'build_template_fields',
     'calculate_expected_template_hash',
     'calculate_pcr10',
