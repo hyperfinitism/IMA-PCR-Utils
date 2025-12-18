@@ -4,10 +4,24 @@ IMA log parsing and PCR10 calculation library.
 This module provides functions for parsing IMA log entries and calculating PCR10 values.
 """
 
+__all__ = [
+    "IMALogEntry",
+    "parse_ima_log_line",
+    "parse_ima_logs",
+    "build_template_fields",
+    "calculate_expected_template_hash",
+    "calculate_pcr10",
+    "read_ima_log_file",
+    "validate_ima_log_entry",
+    "validate_ima_log_entries",
+    "validate_ima_log_file",
+]
+
+
 import hashlib
 import struct
 from dataclasses import dataclass
-from typing import Callable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple
 
 
 @dataclass
@@ -113,7 +127,7 @@ def calculate_expected_template_hash(
     Returns:
         Expected template hash as bytes
     """
-    d_ng_content, d_ng_field, n_ng_content, n_ng_field = build_template_fields(
+    _d_ng_content, d_ng_field, _n_ng_content, n_ng_field = build_template_fields(
         entry)
     # Combine template data
     template_data = d_ng_field + n_ng_field
@@ -170,18 +184,10 @@ def read_ima_log_file(
 
     Returns:
         List of IMALogEntry
-
-    Raises:
-        FileNotFoundError: If file does not exist
-        PermissionError: If permission denied
     """
-    try:
-        with open(file_path, 'r', encoding=encoding, errors=errors) as f:
-            lines = f.read()
-            return parse_ima_logs(lines)
-    except PermissionError:
-        raise PermissionError(f"Permission denied: {
-                              file_path}. Please run with sudo or add read permission to the file.")
+    with open(file_path, 'r', encoding=encoding, errors=errors) as f:
+        lines = f.read()
+        return parse_ima_logs(lines)
 
 
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
@@ -210,7 +216,7 @@ def validate_ima_log_entries(entries: List[IMALogEntry], hash_func: Callable[[by
         True if all entries are valid, False otherwise  
     """
     for entry in entries:
-        if not validate_ima_log_entry(entry):
+        if not validate_ima_log_entry(entry, hash_func):
             return False
     return True
 
