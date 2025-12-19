@@ -6,8 +6,7 @@ This module provides functions for parsing IMA log entries and calculating PCR10
 
 __all__ = [
     "IMALogEntry",
-    "parse_ima_log_line",
-    "parse_ima_logs",
+    "parse_ima_log_string",
     "build_template_fields",
     "calculate_expected_template_hash",
     "calculate_pcr10",
@@ -21,63 +20,72 @@ __all__ = [
 import hashlib
 import struct
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, List, Tuple
 
 
 @dataclass
 class IMALogEntry:
     """Structure representing a single IMA log entry."""
+    # Fields
     pcr_idx: str
     template_hash: str
     template_name: str
     file_data: str  # Format: "algo:hexdigest"
     file_path: str
 
+    # Methods
+    def __init__(self, pcr_idx: str, template_hash: str, template_name: str, file_data: str, file_path: str):
+        """Initialize IMALogEntry structure."""
+        self.pcr_idx = pcr_idx
+        self.template_hash = template_hash
+        self.template_name = template_name
+        self.file_data = file_data
+        self.file_path = file_path
 
-def parse_ima_log_line(line: str) -> Optional[IMALogEntry]:
+    def __str__(self) -> str:
+        """Return a string representation of the IMALogEntry."""
+        return " ".join([self.pcr_idx, self.template_hash, self.template_name, self.file_data, self.file_path])
+
+    @classmethod
+    def from_string(cls, line: str) -> "IMALogEntry":
+        """
+        Parse a single line from IMA log and convert it to IMALogEntry.
+
+        Args:
+            line: A line from IMA log file
+            (format: "pcr_idx template_hash template_name file_data file_path")
+
+        Returns:
+            IMALogEntry
+        """
+        parts = line.strip().split(" ")
+        if len(parts) < 5:
+            raise ValueError(f"Invalid IMA log entry: {line}")
+        pcr_idx = parts[0]
+        template_hash = parts[1]
+        template_name = parts[2]
+        file_data = parts[3]
+        file_path = " ".join(parts[4:])
+        return cls(pcr_idx, template_hash, template_name, file_data, file_path)
+
+
+def parse_ima_log_string(log_string: str) -> List[IMALogEntry]:
     """
-    Parse a single line from IMA log and convert it to IMALogEntry structure.
-
-    Args:
-        line: A line from IMA log file
-        (format: PCR | Template_Hash | Template_Name | File_Data | File_Path)
-
-    Returns:
-        IMALogEntry if parsing succeeds, None otherwise
-    """
-    parts = line.strip().split()
-    # Format: PCR | Template_Hash | Template_Name | File_Data | File_Path
-    if len(parts) < 5:
-        return None
-    pcr_idx = parts[0]
-    template_hash = parts[1]
-    template_name = parts[2]
-    file_data = parts[3]
-    # File path may contain spaces, so join the remaining parts
-    file_path = " ".join(parts[4:])
-    return IMALogEntry(
-        pcr_idx=pcr_idx,
-        template_hash=template_hash,
-        template_name=template_name,
-        file_data=file_data,
-        file_path=file_path
-    )
-
-
-def parse_ima_logs(log_string: str) -> List[IMALogEntry]:
-    """
-    Parse a string of IMA log entries and convert it to a list of IMALogEntry structures.
+    Parse a string of IMA log entries and convert it to a list of IMALogEntry.
 
     Args:
         log_string: A string of IMA log entries
 
     Returns:
+        List of IMALogEntry
     """
     entries = []
     for line in log_string.split('\n'):
-        entry = parse_ima_log_line(line)
-        if entry is not None:
-            entries.append(entry)
+        if line.strip() == '':
+            print("Info: Empty line found in IMA log")
+            continue
+        entry = IMALogEntry.from_string(line)
+        entries.append(entry)
     return entries
 
 
@@ -187,7 +195,7 @@ def read_ima_log_file(
     """
     with open(file_path, 'r', encoding=encoding, errors=errors) as f:
         lines = f.read()
-        return parse_ima_logs(lines)
+    return parse_ima_log_string(lines)
 
 
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
