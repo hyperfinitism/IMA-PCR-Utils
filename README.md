@@ -1,22 +1,37 @@
 # IMA PCR10 Utils
 
-This project includes the Python libraries for parsing IMA log entries and calculating PCR10 values.
+**IMA PCR10 Utils** (`imapcr10`) is a Python library for Integrity Measurement Architecture (IMA), providing functionality for parsing IMA log entries and calculating PCR10 hash values.
 
-## Project structure
-
-```
-IMA-PCR10-Utils/
-├── imapcr10/		# Python module
-└── samples/     	# Example scripts and IMA logs
-```
-
-## Usage
+## Installation
 
 ### Requirements
 
 - Python 3.7+ (Tested with Python 3.12.3)
 
-### Calculating PCR10 from IMA logs
+### Install from repository
+
+```bash
+git clone https://github.com/acompany-develop/IMA-PCR10-Utils
+cd IMA-PCR10-Utils
+pip install -e .
+```
+
+## Usage
+
+The Python module `imapcr10` provides functionality for parsing IMA logs and calculating PCR10 from the IMA logs. It can be used as follows:
+
+### Example Code
+
+```python
+import hashlib
+from imapcr10 import read_ima_log_file, calculate_pcr10
+
+entries = read_ima_log_file("/sys/kernel/security/ima/ascii_runtime_measurements")
+pcr_value = calculate_pcr10(entries, hash_func=hashlib.sha256)
+print(f"PCR 10: {pcr_value.hex().upper()}")
+```
+
+### CLI Tools / Example Scripts
 
 You can calculate PCR10 values from IMA log files using the example script.
 
@@ -32,20 +47,7 @@ When using the default input, please run it in an Azure VM (i.e. attester) envir
 
 Sample input IMA logs located within the `examples/` directory are also available.
 
-### Using as a Python module
-
-The Python module `imapcr10` provides functionality for parsing IMA logs and calculating PCR10. It can be used as follows:
-
-```python
-import hashlib
-from imapcr10 import read_ima_log_file, calculate_pcr10
-
-entries = read_ima_log_file("/sys/kernel/security/ima/ascii_runtime_measurements")
-pcr_value = calculate_pcr10(entries, hash_func=hashlib.sha256)
-print(f"PCR 10: {pcr_value.hex().upper()}")
-```
-
-### Comparing with the actual PCR10
+### Compare with the true PCR10 hash value
 
 Run on the attester environment (Azure VM with vTPM):
 
