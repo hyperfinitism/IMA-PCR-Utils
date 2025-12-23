@@ -2,7 +2,7 @@
 Example script for calculating PCR10 from IMA log file.
 """
 import hashlib
-from imapcr10 import read_ima_log_file, calculate_pcr10
+from imapcr10 import parse_ima_log_string, calculate_pcr10
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 
@@ -29,7 +29,9 @@ def main():
     pcr_hash_func = select_hash_function(pcr_hash_type)
 
     # Read IMA log entries
-    entries = read_ima_log_file(input_path)
+    with open(input_path, 'r') as f:
+        lines = f.read()
+    entries = parse_ima_log_string(lines)
 
     # Calculate PCR10
     pcr_value = calculate_pcr10(

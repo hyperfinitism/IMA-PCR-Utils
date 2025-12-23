@@ -24,11 +24,30 @@ The Python module `imapcr10` provides functionality for parsing IMA logs and cal
 
 ```python
 import hashlib
-from imapcr10 import read_ima_log_file, calculate_pcr10
+from imapcr10 import parse_ima_log_string, calculate_pcr10, calculate_boot_aggregate
 
-entries = read_ima_log_file("/sys/kernel/security/ima/ascii_runtime_measurements")
+# parse IMA logs
+with open(ima_log_path, 'r') as f:
+    lines = f.read()
+entries = parse_ima_log_string(lines)
+
+# calculate PCR10 hash
 pcr_value = calculate_pcr10(entries, hash_func=hashlib.sha256)
-print(f"PCR 10: {pcr_value.hex().upper()}")
+
+# calculate boot_aggregate
+pcrlist = [
+    bytes.fromhex("50597A27846E91D025EEF597ABBC89F72BFF9AF849094DB97B0684D8BC4C515E"),
+    bytes.fromhex("3A1F7B51E23F50DED05B83A880850913657A9AB4EBC8B0CAA574D46B2E39A864"),
+    bytes.fromhex("3D458CFE55CC03EA1F443F1562BEEC8DF51C75E14A9FCF9A7234A13F198E7969"),
+    bytes.fromhex("3D458CFE55CC03EA1F443F1562BEEC8DF51C75E14A9FCF9A7234A13F198E7969"),
+    bytes.fromhex("A274E8CAD520128A8B8E607F7216645A288E81E09F3F130186EC4EF84754B7B7"),
+    bytes.fromhex("CC39B36D65EC93BB33B631B75E43AACF35BCF872C78BA312263FC0022422C107"),
+    bytes.fromhex("3D458CFE55CC03EA1F443F1562BEEC8DF51C75E14A9FCF9A7234A13F198E7969"),
+    bytes.fromhex("A11C5239A222BB78072C2C73CAA691BB9A0F118DE2D95CDCE1FCE06711E4D3ED"),
+    bytes.fromhex("D2B43B51A68170474AA807E80A08D1971177BB8B137C0E84301D008D1BB03CCF"),
+    bytes.fromhex("DA94827889CCEDE4CB7BBE3BF720BD4DBFCAD7434A9C2D068CCC2CEF58903F27"),
+]
+boot_aggregate = calculate_boot_aggregate(pcrlist)
 ```
 
 ### CLI Tools / Example Scripts
@@ -54,12 +73,15 @@ Run on the attester environment (Azure VM with vTPM):
 ```bash
 sudo apt update
 sudo apt install -y tpm2-tools
+
+sudo usermod -aG tss $USER
+newgrp tss
 ```
 
 ```bash
-sudo tpm2_pcrread sha1:10
-sudo tpm2_pcrread sha256:10
-sudo tpm2_pcrread sha384:10
+tpm2_pcrread sha1:10
+tpm2_pcrread sha256:10
+tpm2_pcrread sha384:10
 ```
 
 ## Setting custom IMA policy
@@ -161,7 +183,9 @@ cat $IMA_POLICY_PATH > /sys/kernel/security/ima/policy
 
 If the policy is valid, the IMA policy will be loaded successfully. Otherwise, the IMA policy is invalid. Check syntax, measured items, etc.
 
-## Test Environment
+## Test Environments
+
+### Environment 1
 
 - CSP: Azure
 - Machine: DCasv6 (AMD Genoa)
@@ -173,3 +197,16 @@ If the policy is valid, the IMA policy will be loaded successfully. Otherwise, t
 - OS Image: Ubuntu Server 24.04 LTS (Confidential VM) - x64 Gen2
 - Diagnostics
 	- Boot diagnostics: Enable with managed storage account
+
+### Environment 2
+
+- CSP: Google Cloud Platform
+- Machine: N2D (AMD Milan)
+- Security
+    - Confidential VM service: Enabled (AMD SEV-SNP)
+    - Secure Boot: Enabled
+    - vTPM: Enabled
+    - Integrity Monitoring: Enabled
+- OS Image: Ubuntu 24.04 LTS NVIDIA version: 580
+
+

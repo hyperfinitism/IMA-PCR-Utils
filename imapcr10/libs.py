@@ -10,10 +10,10 @@ __all__ = [
     "build_template_fields",
     "calculate_expected_template_hash",
     "calculate_pcr10",
-    "read_ima_log_file",
     "validate_ima_log_entry",
     "validate_ima_log_entries",
-    "validate_ima_log_file",
+    "lookup_boot_aggregate",
+    "calculate_boot_aggregate",
 ]
 
 
@@ -177,27 +177,6 @@ def calculate_pcr10(
     return pcr_value
 
 
-def read_ima_log_file(
-    file_path: str,
-    encoding: str = 'utf-8',
-    errors: str = 'ignore'
-) -> List[IMALogEntry]:
-    """
-    Read IMA log file and convert to list of IMALogEntry.
-
-    Args:
-        file_path: Path to IMA log file
-        encoding: File encoding (default: 'utf-8')
-        errors: Error handling mode (default: 'ignore')
-
-    Returns:
-        List of IMALogEntry
-    """
-    with open(file_path, 'r', encoding=encoding, errors=errors) as f:
-        lines = f.read()
-    return parse_ima_log_string(lines)
-
-
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
     """
     Validate IMA log entry. Template_hash must coincide with SHA-1 hash of the file data.
@@ -229,15 +208,31 @@ def validate_ima_log_entries(entries: List[IMALogEntry], hash_func: Callable[[by
     return True
 
 
-def validate_ima_log_file(file_path: str, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
+def lookup_boot_aggregate(entries: List[IMALogEntry]) -> IMALogEntry | None:
     """
-    Validate IMA log file. All entries must be valid.
+    Lookup boot aggregate in IMA log entries.
 
     Args:
-        file_path: Path to IMA log file
-        hash_func: Hash function to use (default: hashlib.sha1)
+        entries: List of IMALogEntry structures
     Returns:
-        True if file is valid, False otherwise
+        IMALogEntry | None
     """
-    entries = read_ima_log_file(file_path)
-    return validate_ima_log_entries(entries, hash_func)
+    for entry in entries:
+        if entry.pcr_idx == "10" and entry.template_name == "ima-ng" and entry.file_path == "boot_aggregate":
+            return entry
+    return None
+
+
+def calculate_boot_aggregate(pcrlist: List[bytes], hash_func: Callable[[bytes], bytes] = hashlib.sha256) -> bytes:
+    """
+    Calculate boot aggregate from PCR 0 to 9.
+
+    Args:
+        pcrlist: List of PCR 0 to 9 values
+        hash_func: Hash function to use (default: hashlib.sha256)
+    Returns:
+        Boot aggregate as bytes
+    """
+    if len(pcrlist) != 10:
+        raise ValueError(f"length of PCR list is expected to be 10: actual {len(pcrlist)}")
+    return hash_func(b''.join(pcrlist)).digest()
