@@ -82,7 +82,6 @@ def parse_ima_log_string(log_string: str) -> List[IMALogEntry]:
     entries = []
     for line in log_string.split('\n'):
         if line.strip() == '':
-            print("Info: Empty line found in IMA log")
             continue
         entry = IMALogEntry.from_string(line)
         entries.append(entry)

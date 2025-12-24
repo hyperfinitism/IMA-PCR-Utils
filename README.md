@@ -11,9 +11,7 @@
 ### Install from repository
 
 ```bash
-git clone https://github.com/acompany-develop/IMA-PCR10-Utils
-cd IMA-PCR10-Utils
-pip install -e .
+pip install git+https://github.com/acompany-develop/IMA-PCR10-Utils
 ```
 
 ## Usage
@@ -54,26 +52,22 @@ boot_aggregate = calculate_boot_aggregate(pcrlist)
 
 You can calculate PCR10 values from IMA log files using the example script.
 
-```bash
-# Calculate PCR10 from input IMA logs
-# Default:
-# /sys/kernel/security/ima/ascii_runtime_measurements
-# sha256 for PCR10 hash chain
-sudo python3 examples/pcr10.py
-```
+The `examples/` directory contains scripts that serve as both usage examples and command-line tools. Sample IMA logs are also available.
 
-When using the default input, please run it in an Azure VM (i.e. attester) environment where vTPM is available.
-
-Sample input IMA logs located within the `examples/` directory are also available.
+| Script | Description |
+|--------|-------------|
+| `pcr10.py` | Calculate PCR10 from input IMA log |
 
 ### Compare with the true PCR10 hash value
 
-Run on the attester environment (Azure VM with vTPM):
+Run on the attester environment with vTPM:
 
 ```bash
+# install TPM2 Tools
 sudo apt update
 sudo apt install -y tpm2-tools
 
+# Grant permission to access tpm driver
 sudo usermod -aG tss $USER
 newgrp tss
 ```
@@ -131,39 +125,17 @@ For example, you can use [nuitka](https://github.com/Nuitka/Nuitka) to compile P
 
 ```bash
 # Install Nuitka
-sudo apt install -y pipx
-pipx install nuitka
-pipx ensurepath
+pip install nuitka
 
 nuitka <PYTHON_SCRIPT_FILE>.py
 # => <PYTHON_SCRIPT_FILE>.bin
-```
-
-The example directory contains the IMA logs before and after running `pcr10.bin` (built from `examples/pcr10.py`).
-
-```bash
-# pcr10.py => pcr10.bin
-nuitka examples/pcr10.py
-sudo reboot
-
-# Copy IMA logs before execution
-(sudo cat /sys/kernel/security/ima/ascii_runtime_measurements) > ascii_runtime_measurements_policy_before_exec
-
-# Execute
-sudo ./pcr10.bin
-
-# Copy IMA logs after execution
-(sudo cat /sys/kernel/security/ima/ascii_runtime_measurements) > ascii_runtime_measurements_policy_after_exec
-
-# Check SHA-256 checksum of pcr10.bin
-sha256sum ./pcr10.bin
 ```
 
 ## Trouble Shooting
 
 ### Boot failure after setting IMA policy
 
-Open the serial console for the VM instance in the Azure Portal (boot diagnostics must be enabled). Then retry the procedure that caused the issue. If the following error message appears in the serial console, the IMA policy may be invalid.
+Open the serial console for the VM instance and (re)boot. If the error message like the following appears in the serial console, the IMA policy may be invalid.
 
 ```console
 [!!!!!!] Failed to load IMA policy.
@@ -187,7 +159,7 @@ If the policy is valid, the IMA policy will be loaded successfully. Otherwise, t
 
 ### Environment 1
 
-- CSP: Azure
+- CSP: Microsoft Azure
 - Machine: DCasv6 (AMD Genoa)
 - Security
     - Security type: Confidential (SEV-SNP)
