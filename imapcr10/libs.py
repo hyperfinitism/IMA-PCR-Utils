@@ -11,7 +11,6 @@ __all__ = [
     "calculate_expected_template_hash",
     "calculate_pcr10",
     "validate_ima_log_entry",
-    "validate_ima_log_entries",
     "calculate_boot_aggregate",
 ]
 
@@ -181,7 +180,7 @@ def calculate_pcr10(
 
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
     """
-    Validate IMA log entry. Template_hash must coincide with SHA-1 hash of the file data.
+    Validate IMA log entry. Template_hash must coincide with the hash of the file data.
 
     Args:
         entry: IMALogEntry structure
@@ -194,32 +193,16 @@ def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], byte
     return entry.template_hash == expected_template_hash.hex()
 
 
-def validate_ima_log_entries(entries: List[IMALogEntry], hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
-    """
-    Validate a list of IMA log entries. All entries must be valid.
-
-    Args:
-        entries: List of IMALogEntry structures
-        hash_func: Hash function to use (default: hashlib.sha1)
-    Returns:
-        True if all entries are valid, False otherwise  
-    """
-    for entry in entries:
-        if not validate_ima_log_entry(entry, hash_func):
-            return False
-    return True
-
-
 def calculate_boot_aggregate(pcrlist: List[bytes], hash_func: Callable[[bytes], bytes] = hashlib.sha256) -> bytes:
     """
-    Calculate boot aggregate from PCR 0 to 9.
+    Calculate boot aggregate from PCR0..PCR9.
 
     Args:
-        pcrlist: List of PCR 0 to 9 values
-        hash_func: Hash function to use (default: hashlib.sha256)
+        pcrlist: List of PCR0..PCR9 byte strings
+        hash_func: Hash function for boot aggregate calculation (default: hashlib.sha256)
     Returns:
         Boot aggregate as bytes
     """
     if len(pcrlist) != 10:
-        raise ValueError(f"length of PCR list is expected to be 10: actual {len(pcrlist)}")
+        raise ValueError(f"length of PCR list is expected to be 10: got {len(pcrlist)}")
     return hash_func(b''.join(pcrlist)).digest()
