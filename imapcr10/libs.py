@@ -33,15 +33,6 @@ class IMALogEntry:
     file_path: str
 
     # Methods
-    def __init__(self, pcr_idx: str, template_hash: str, template_name: str, hash_algo: str, file_hash: bytes, file_path: str):
-        """Initialize IMALogEntry structure."""
-        self.pcr_idx = pcr_idx
-        self.template_hash = template_hash
-        self.template_name = template_name
-        self.hash_algo = hash_algo
-        self.file_hash = file_hash
-        self.file_path = file_path
-
     def __str__(self) -> str:
         """Return a string representation of the IMALogEntry."""
         return " ".join([self.pcr_idx, self.template_hash, self.template_name, self.hash_algo + ":" + self.file_hash.hex(), self.file_path])

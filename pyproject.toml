@@ -6,7 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "imapcr10"
 version = "0.1.0"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
-include = ["imapcr10*"]
+include = ["imapcr10"]
+
+[project.optional-dependencies]
+dev = ["pylint", "pytest"]

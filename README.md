@@ -6,7 +6,7 @@
 
 ### Requirements
 
-- Python 3.7+ (Tested with Python 3.12.3)
+- Python 3.10+ (Tested with Python 3.12.3)
 
 ### Install from repository
 
