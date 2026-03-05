@@ -17,13 +17,14 @@ __all__ = [
 
 import hashlib
 import struct
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Tuple
 
 
 @dataclass
 class IMALogEntry:
     """Structure representing a single IMA log entry."""
+
     # Fields
     pcr_idx: str
     template_hash: str
@@ -35,7 +36,9 @@ class IMALogEntry:
     # Methods
     def __str__(self) -> str:
         """Return a string representation of the IMALogEntry."""
-        return " ".join([self.pcr_idx, self.template_hash, self.template_name, self.hash_algo + ":" + self.file_hash.hex(), self.file_path])
+        return " ".join(
+            [self.pcr_idx, self.template_hash, self.template_name, self.hash_algo + ":" + self.file_hash.hex(), self.file_path]
+        )
 
     @classmethod
     def from_string(cls, line: str) -> "IMALogEntry":
@@ -57,7 +60,7 @@ class IMALogEntry:
         template_name = parts[2]
         # format: "algo:hexdigest" e.g. "sha256:0123456789abcdef..."
         try:
-            hash_algo, file_hash_hex = parts[3].split(':')
+            hash_algo, file_hash_hex = parts[3].split(":")
             file_hash = bytes.fromhex(file_hash_hex)
         except ValueError as e:
             raise ValueError(f"Invalid file_hash format: {parts[3]}") from e
@@ -65,7 +68,7 @@ class IMALogEntry:
         return cls(pcr_idx, template_hash, template_name, hash_algo, file_hash, file_path)
 
 
-def parse_ima_log_string(log_string: str) -> List[IMALogEntry]:
+def parse_ima_log_string(log_string: str) -> list[IMALogEntry]:
     """
     Parse a string of IMA log entries and convert it to a list of IMALogEntry.
 
@@ -76,15 +79,15 @@ def parse_ima_log_string(log_string: str) -> List[IMALogEntry]:
         List of IMALogEntry
     """
     entries = []
-    for line in log_string.split('\n'):
-        if line.strip() == '':
+    for line in log_string.split("\n"):
+        if line.strip() == "":
             continue
         entry = IMALogEntry.from_string(line)
         entries.append(entry)
     return entries
 
 
-def build_template_fields(entry: IMALogEntry) -> Tuple[bytes, bytes, bytes, bytes]:
+def build_template_fields(entry: IMALogEntry) -> tuple[bytes, bytes, bytes, bytes]:
     """
     Build d_ng_content, d_ng_field, n_ng_content, n_ng_field from IMA log entry.
 
@@ -102,20 +105,17 @@ def build_template_fields(entry: IMALogEntry) -> Tuple[bytes, bytes, bytes, byte
     algo = entry.hash_algo
     digest_bytes = entry.file_hash
     # "algo:\0" + digest_bytes
-    d_ng_content = algo.encode('ascii') + b':' + b'\x00' + digest_bytes
-    d_ng_field = struct.pack('<I', len(d_ng_content)) + d_ng_content
+    d_ng_content = algo.encode("ascii") + b":" + b"\x00" + digest_bytes
+    d_ng_field = struct.pack("<I", len(d_ng_content)) + d_ng_content
     # 2. Create n-ng (Name) field
     # Format: [FilePath(string)] + [\0]
     # File path must end with null character
-    n_ng_content = entry.file_path.encode('utf-8') + b'\x00'
-    n_ng_field = struct.pack('<I', len(n_ng_content)) + n_ng_content
+    n_ng_content = entry.file_path.encode("utf-8") + b"\x00"
+    n_ng_field = struct.pack("<I", len(n_ng_content)) + n_ng_content
     return d_ng_content, d_ng_field, n_ng_content, n_ng_field
 
 
-def calculate_expected_template_hash(
-    entry: IMALogEntry,
-    hash_func: Callable[[bytes], bytes] = hashlib.sha1
-) -> bytes:
+def calculate_expected_template_hash(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bytes:
     """
     Calculate expected template hash from IMA log entry.
 
@@ -127,8 +127,7 @@ def calculate_expected_template_hash(
     Returns:
         Expected template hash as bytes
     """
-    _d_ng_content, d_ng_field, _n_ng_content, n_ng_field = build_template_fields(
-        entry)
+    _d_ng_content, d_ng_field, _n_ng_content, n_ng_field = build_template_fields(entry)
     # Combine template data
     template_data = d_ng_field + n_ng_field
     # Calculate Template Hash
@@ -137,10 +136,7 @@ def calculate_expected_template_hash(
     return expected_template_hash
 
 
-def calculate_pcr10(
-    entries: List[IMALogEntry],
-    hash_func: Callable[[bytes], bytes] = hashlib.sha256
-) -> bytes:
+def calculate_pcr10(entries: list[IMALogEntry], hash_func: Callable[[bytes], bytes] = hashlib.sha256) -> bytes:
     """
     Calculate PCR10 value from a list of IMA log entries.
 
@@ -161,8 +157,7 @@ def calculate_pcr10(
         if entry.template_name != "ima-ng":
             continue
         # Calculate template hash using the specified hash function
-        expected_template_hash = calculate_expected_template_hash(
-            entry, hash_func)
+        expected_template_hash = calculate_expected_template_hash(entry, hash_func)
         # PCR extension (Extend Operation)
         # PCR_new = HASH( PCR_old || Template_Hash )
         pcr_value = hash_func(pcr_value + expected_template_hash).digest()
@@ -179,12 +174,11 @@ def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], byte
     Returns:
         True if entry is valid, False otherwise
     """
-    expected_template_hash = calculate_expected_template_hash(
-        entry, hash_func)
+    expected_template_hash = calculate_expected_template_hash(entry, hash_func)
     return entry.template_hash == expected_template_hash.hex()
 
 
-def calculate_boot_aggregate(pcrlist: List[bytes], hash_func: Callable[[bytes], bytes] = hashlib.sha256) -> bytes:
+def calculate_boot_aggregate(pcrlist: list[bytes], hash_func: Callable[[bytes], bytes] = hashlib.sha256) -> bytes:
     """
     Calculate boot aggregate from PCR0..PCR9.
 
@@ -196,4 +190,4 @@ def calculate_boot_aggregate(pcrlist: List[bytes], hash_func: Callable[[bytes], 
     """
     if len(pcrlist) != 10:
         raise ValueError(f"length of PCR list is expected to be 10: got {len(pcrlist)}")
-    return hash_func(b''.join(pcrlist)).digest()
+    return hash_func(b"".join(pcrlist)).digest()

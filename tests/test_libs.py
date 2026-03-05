@@ -7,30 +7,23 @@ import pytest
 
 from imapcrutils import (
     IMALogEntry,
-    parse_ima_log_string,
     build_template_fields,
+    calculate_boot_aggregate,
     calculate_expected_template_hash,
     calculate_pcr10,
+    parse_ima_log_string,
     validate_ima_log_entry,
-    calculate_boot_aggregate,
 )
 
-SAMPLE_LINE = (
-    "10 8facace9d7255a1985e976e9bb59675f211c82de ima-ng "
-    "sha256:088faac4777b024045bd578c5c3f8efc4ac2cafb4af90a12832a762feb58eb88 "
-    "boot_aggregate"
-)
+SAMPLE_LINE = "10 8facace9d7255a1985e976e9bb59675f211c82de ima-ng sha256:088faac4777b024045bd578c5c3f8efc4ac2cafb4af90a12832a762feb58eb88 boot_aggregate"  # noqa: E501
 
-SAMPLE_LINE_LONG_PATH = (
-    "10 842c66cec8b78a650d98e85cbbf0b67fc1a2a605 ima-ng "
-    "sha256:cf06a09ff00ee3275779e83cf9a4037dd822ba9dc16442584212f605ba71e341 "
-    "/usr/lib/modules/6.14.0-1017-azure-fde/kernel/fs/autofs/autofs4.ko.zst"
-)
+SAMPLE_LINE_LONG_PATH = "10 842c66cec8b78a650d98e85cbbf0b67fc1a2a605 ima-ng sha256:cf06a09ff00ee3275779e83cf9a4037dd822ba9dc16442584212f605ba71e341 /usr/lib/modules/6.14.0-1017-azure-fde/kernel/fs/autofs/autofs4.ko.zst"  # noqa: E501
 
 
 # ---------------------------------------------------------------------------
 # IMALogEntry.from_string
 # ---------------------------------------------------------------------------
+
 
 class TestIMALogEntryFromString:
     """Tests for IMALogEntry.from_string — parsing a single IMA log line."""
@@ -42,24 +35,17 @@ class TestIMALogEntryFromString:
         assert entry.template_hash == "8facace9d7255a1985e976e9bb59675f211c82de"
         assert entry.template_name == "ima-ng"
         assert entry.hash_algo == "sha256"
-        assert entry.file_hash == bytes.fromhex(
-            "088faac4777b024045bd578c5c3f8efc4ac2cafb4af90a12832a762feb58eb88"
-        )
+        assert entry.file_hash == bytes.fromhex("088faac4777b024045bd578c5c3f8efc4ac2cafb4af90a12832a762feb58eb88")
         assert entry.file_path == "boot_aggregate"
 
     def test_long_file_path(self):
         """Parse a line with a long absolute file path."""
         entry = IMALogEntry.from_string(SAMPLE_LINE_LONG_PATH)
-        assert entry.file_path == (
-            "/usr/lib/modules/6.14.0-1017-azure-fde/kernel/fs/autofs/autofs4.ko.zst"
-        )
+        assert entry.file_path == ("/usr/lib/modules/6.14.0-1017-azure-fde/kernel/fs/autofs/autofs4.ko.zst")
 
     def test_file_path_with_spaces(self):
         """Spaces after the 4th field are preserved as part of the file path."""
-        line = (
-            "10 aaaa ima-ng sha256:bbbb "
-            "/path/with spaces/file name.txt"
-        )
+        line = "10 aaaa ima-ng sha256:bbbb /path/with spaces/file name.txt"
         entry = IMALogEntry.from_string(line)
         assert entry.file_path == "/path/with spaces/file name.txt"
 
@@ -83,6 +69,7 @@ class TestIMALogEntryFromString:
 # IMALogEntry.__str__  (round-trip)
 # ---------------------------------------------------------------------------
 
+
 class TestIMALogEntryStr:
     """Tests for IMALogEntry.__str__ — round-trip fidelity."""
 
@@ -100,6 +87,7 @@ class TestIMALogEntryStr:
 # ---------------------------------------------------------------------------
 # parse_ima_log_string
 # ---------------------------------------------------------------------------
+
 
 class TestParseImaLogString:
     """Tests for parse_ima_log_string — multi-line IMA log parsing."""
@@ -132,6 +120,7 @@ class TestParseImaLogString:
 # build_template_fields
 # ---------------------------------------------------------------------------
 
+
 class TestBuildTemplateFields:
     """Tests for build_template_fields — ima-ng d-ng/n-ng field construction."""
 
@@ -145,7 +134,7 @@ class TestBuildTemplateFields:
         assert d_ng_content[8:] == entry.file_hash
 
         # d-ng field: little-endian uint32 length prefix + content
-        length = struct.unpack('<I', d_ng_field[:4])[0]
+        length = struct.unpack("<I", d_ng_field[:4])[0]
         assert length == len(d_ng_content)
         assert d_ng_field[4:] == d_ng_content
 
@@ -153,7 +142,7 @@ class TestBuildTemplateFields:
         assert n_ng_content == b"boot_aggregate\x00"
 
         # n-ng field: little-endian uint32 length prefix + content
-        length = struct.unpack('<I', n_ng_field[:4])[0]
+        length = struct.unpack("<I", n_ng_field[:4])[0]
         assert length == len(n_ng_content)
         assert n_ng_field[4:] == n_ng_content
 
@@ -161,6 +150,7 @@ class TestBuildTemplateFields:
 # ---------------------------------------------------------------------------
 # calculate_expected_template_hash
 # ---------------------------------------------------------------------------
+
 
 class TestCalculateExpectedTemplateHash:
     """Tests for calculate_expected_template_hash — recomputing template_hash."""
@@ -184,6 +174,7 @@ class TestCalculateExpectedTemplateHash:
 # ---------------------------------------------------------------------------
 # validate_ima_log_entry
 # ---------------------------------------------------------------------------
+
 
 class TestValidateImaLogEntry:
     """Tests for validate_ima_log_entry — checking template_hash integrity."""
