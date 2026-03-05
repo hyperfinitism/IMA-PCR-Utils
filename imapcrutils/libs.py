@@ -1,7 +1,7 @@
 """
-IMA log parsing and PCR10 calculation library.
+IMA log parsing, PCR10 calculation and boot_aggregate calculation library.
 
-This module provides functions for parsing IMA log entries and calculating PCR10 values.
+This module provides functions for parsing IMA log entries, calculating PCR10 values and boot_aggregate values.
 """
 
 __all__ = [

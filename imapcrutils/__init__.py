@@ -1,12 +1,12 @@
 """
-IMA PCR10 Utils - Python Library
+IMA-PCR-Utils - Python Library
 
-This package provides functions for parsing IMA log entries and calculating PCR10 values.
+This package provides functions for parsing IMA log entries, calculating PCR10 values and boot_aggregate values.
 """
 
 __version__ = "0.1.0"
 
-from imapcr10.libs import (
+from imapcrutils.libs import (
     IMALogEntry,
     parse_ima_log_string,
     build_template_fields,

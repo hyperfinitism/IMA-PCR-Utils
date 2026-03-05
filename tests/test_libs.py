@@ -1,11 +1,11 @@
-"""Tests for imapcr10.libs — parsing, PCR10 replay, validation, and boot_aggregate."""
+"""Tests for imapcrutils.libs — parsing, PCR10 replay, validation, and boot_aggregate."""
 
 import hashlib
 import struct
 
 import pytest
 
-from imapcr10 import (
+from imapcrutils import (
     IMALogEntry,
     parse_ima_log_string,
     build_template_fields,

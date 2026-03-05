@@ -3,13 +3,13 @@ requires = ["setuptools>=82.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "imapcr10"
+name = "imapcrutils"
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
-include = ["imapcr10"]
+include = ["imapcrutils"]
 
 [project.optional-dependencies]
 dev = ["pylint", "pytest"]

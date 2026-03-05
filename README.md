@@ -1,6 +1,6 @@
-# IMA PCR10 Utils
+# IMA-PCR-Utils
 
-**IMA PCR10 Utils** (`imapcr10`) is a Python library for Integrity Measurement Architecture (IMA), providing functionality for parsing IMA log entries and calculating PCR10 hash values.
+**IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement Architecture (IMA), providing functionality for parsing IMA log entries, calculating PCR10 hash values and boot_aggregate values.
 
 ## Installation
 
@@ -11,14 +11,14 @@
 ### Install from repository
 
 ```bash
-pip install git+https://github.com/acompany-develop/IMA-PCR10-Utils
+pip install git+https://github.com/acompany-develop/IMA-PCR-Utils
 ```
 
 ## What's inside
 
 ### Module
 
-The `imapcr10` module consists of the following public types and functions:
+The `imapcrutils` module consists of the following public types and functions:
 
 | Name | Description |
 |---|---|
@@ -48,7 +48,7 @@ Run on the attester environment with vTPM:
 sudo apt update
 sudo apt install -y tpm2-tools
 
-# Grant permission to access tpm driver
+# Grant permission to access TPM driver
 sudo usermod -aG tss $USER
 newgrp tss
 ```
@@ -62,6 +62,7 @@ tpm2_pcrread sha384:10
 ## Setting custom IMA policy
 
 ### Create/update IMA policy
+
 The bundled policy `config/ima-policy` is configured to measure executable files when they are run.
 
 ```bash

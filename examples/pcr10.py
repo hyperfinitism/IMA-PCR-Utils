@@ -5,7 +5,7 @@ CLI tool for calculating PCR10 from IMA log file.
 import argparse
 import hashlib
 import sys
-from imapcr10 import parse_ima_log_string, calculate_pcr10
+from imapcrutils import parse_ima_log_string, calculate_pcr10
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 
