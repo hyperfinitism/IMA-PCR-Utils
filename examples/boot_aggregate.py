@@ -86,20 +86,17 @@ def split_pcr_blob(pcr_blob: bytes, pcr_digest_size: int) -> list[bytes]:
     """
     if len(pcr_blob) % pcr_digest_size != 0:
         raise ValueError(
-            "Invalid PCR list length: "
-            f"expected length to be divisible by pcr_digest_size {pcr_digest_size}, got {len(pcr_blob)} bytes"
+            f"Invalid PCR list length: length must be divisible by pcr_digest_size {pcr_digest_size}, got {len(pcr_blob)}"
         )
     number_of_pcrs = len(pcr_blob) // pcr_digest_size
-    return [pcr_blob[i * pcr_digest_size:(i + 1) * pcr_digest_size] for i in range(number_of_pcrs)]
+    return [pcr_blob[i * pcr_digest_size : (i + 1) * pcr_digest_size] for i in range(number_of_pcrs)]
 
 
 def main() -> int:
     """
     Main function.
     """
-    parser = argparse.ArgumentParser(
-        description="Calculate boot_aggregate from PCR0..PCR9 binary blob."
-    )
+    parser = argparse.ArgumentParser(description="Calculate boot_aggregate from PCR0..PCR9 binary blob.")
     parser.add_argument(
         "-i",
         "--in",
@@ -160,7 +157,9 @@ def main() -> int:
     # Split PCR list blob into a list of PCR byte strings
     pcr_list = split_pcr_blob(pcr_blob, pcr_digest_size)
     if len(pcr_list) != len(pcr_indices):
-        raise ValueError(f"PCR list length does not match PCR selector: got {len(pcr_list)} PCR(s), expected {len(pcr_indices)} PCR(s)")
+        raise ValueError(
+            f"PCR list length does not match PCR selector: got {len(pcr_list)} PCR(s), expected {len(pcr_indices)} PCR(s)"
+        )
 
     # Select PCR list for boot time
     boot_time_pcr_indices = [i for i in range(10) if i in pcr_indices]

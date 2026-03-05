@@ -1,6 +1,6 @@
 # IMA-PCR-Utils
 
-**IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement Architecture (IMA), providing functionality for parsing IMA log entries, calculating PCR10 hash values and boot_aggregate values.
+**IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement Architecture (IMA) and Platform Configuration Register (PCR), providing functionality for parsing IMA log entries, calculating PCR10 hash values and boot_aggregate values.
 
 ## Installation
 
@@ -21,7 +21,7 @@ pip install git+https://github.com/acompany-develop/IMA-PCR-Utils
 The `imapcrutils` module consists of the following public types and functions:
 
 | Name | Description |
-|---|---|
+| ---- | ----------- |
 | `IMALogEntry` | Represents a single IMA log entry (`pcr_idx`, `template_hash`, `template_name`, `hash_algo`, `file_hash`, `file_path`). |
 | `parse_ima_log_string` | Parse an ASCII IMA log string into a list of `IMALogEntry`. |
 | `build_template_fields` | Build `ima-ng` template fields (digest/name) from an `IMALogEntry`. |
@@ -35,7 +35,7 @@ The `imapcrutils` module consists of the following public types and functions:
 The `examples/` directory contains scripts that serve as both usage examples and command-line tools. Sample IMA log and PCR list files are also available.
 
 | Script | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `pcr10.py` | Calculate PCR10 from input IMA log |
 | `boot_aggregate.py` | Calculate boot_aggregate from PCR list file including PCR[0-9] |
 
@@ -144,23 +144,21 @@ If the policy is valid, the IMA policy will be loaded successfully. Otherwise, t
 - CSP: Microsoft Azure
 - Machine: DCasv6 (AMD Genoa)
 - Security
-    - Security type: Confidential (SEV-SNP)
-    - Enable secure boot: Enabled
-    - Enable vTPM: Enabled
-    - Integrity monitoring: Enabled
+  - Security type: Confidential (SEV-SNP)
+  - Enable secure boot: Enabled
+  - Enable vTPM: Enabled
+  - Integrity monitoring: Enabled
 - OS Image: Ubuntu Server 24.04 LTS (Confidential VM) - x64 Gen2
 - Diagnostics
-	- Boot diagnostics: Enable with managed storage account
+  - Boot diagnostics: Enable with managed storage account
 
 ### Environment 2
 
 - CSP: Google Cloud Platform
 - Machine: N2D (AMD Milan)
 - Security
-    - Confidential VM service: Enabled (AMD SEV-SNP)
-    - Secure Boot: Enabled
-    - vTPM: Enabled
-    - Integrity Monitoring: Enabled
+  - Confidential VM service: Enabled (AMD SEV-SNP)
+  - Secure Boot: Enabled
+  - vTPM: Enabled
+  - Integrity Monitoring: Enabled
 - OS Image: Ubuntu 24.04 LTS NVIDIA version: 580
-
-

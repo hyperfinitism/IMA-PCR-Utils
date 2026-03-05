@@ -2,12 +2,15 @@
 """
 CLI tool for calculating PCR10 from IMA log file.
 """
+
 import argparse
 import hashlib
 import sys
-from imapcrutils import parse_ima_log_string, calculate_pcr10
+
+from imapcrutils import calculate_pcr10, parse_ima_log_string
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
+
 
 def select_hash_function(hash_algorithm: str):
     """
@@ -48,10 +51,10 @@ def output_pcr10_to_file(pcr_value: str | bytes, output_path: str) -> None:
     Output PCR10 value to the specified file.
     """
     if isinstance(pcr_value, str):
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(pcr_value)
     else:
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(pcr_value)
 
 
@@ -59,35 +62,31 @@ def main():
     """
     Main function.
     """
-    parser = argparse.ArgumentParser(
-        description="Calculate PCR10 from IMA log file."
-    )
+    parser = argparse.ArgumentParser(description="Calculate PCR10 from IMA log file.")
     parser.add_argument(
-        "-i", "--in",
+        "-i",
+        "--in",
         dest="input_path",
         default=DEFAULT_IMA_LOG_PATH,
-        help=f"Path to the IMA log file (default: {DEFAULT_IMA_LOG_PATH})"
+        help=f"Path to the IMA log file (default: {DEFAULT_IMA_LOG_PATH})",
     )
     parser.add_argument(
-        "-a", "--hash-algorithm",
+        "-a",
+        "--hash-algorithm",
         dest="hash_algorithm",
         type=str.lower,
         default="sha256",
         choices=["sha1", "sha256", "sha384", "sha512"],
-        help="Hash algorithm to use for PCR10 calculation (default: sha256)"
+        help="Hash algorithm to use for PCR10 calculation (default: sha256)",
     )
+    parser.add_argument("-o", "--out", dest="output_path", default=None, help="Path to the output file (default: stdout)")
     parser.add_argument(
-        "-o", "--out",
-        dest="output_path",
-        default=None,
-        help="Path to the output file (default: stdout)"
-    )
-    parser.add_argument(
-        "-f", "--format",
+        "-f",
+        "--format",
         dest="output_format",
         default="HEX",
         choices=["HEX", "hex", "binary"],
-        help="Output format (default: HEX)"
+        help="Output format (default: HEX)",
     )
 
     args = parser.parse_args()
@@ -96,7 +95,7 @@ def main():
     pcr_hash_func = select_hash_function(args.hash_algorithm)
 
     # Read IMA log entries
-    with open(args.input_path, 'r', encoding='utf-8') as f:
+    with open(args.input_path, encoding="utf-8") as f:
         lines = f.read()
 
     entries = parse_ima_log_string(lines)

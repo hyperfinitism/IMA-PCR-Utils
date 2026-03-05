@@ -28,6 +28,7 @@ def run_script(script: pathlib.Path, *args: str) -> subprocess.CompletedProcess:
 # pcr10.py
 # ---------------------------------------------------------------------------
 
+
 class TestPcr10Cli:
     """Tests for examples/pcr10.py CLI."""
 
@@ -56,8 +57,13 @@ class TestPcr10Cli:
         """'-f binary -o' must write raw 32-byte digest to file."""
         out_file = tmp_path / "pcr10.bin"
         run_script(
-            PCR10_SCRIPT, "-i", str(SAMPLE_IMA_LOG),
-            "-f", "binary", "-o", str(out_file),
+            PCR10_SCRIPT,
+            "-i",
+            str(SAMPLE_IMA_LOG),
+            "-f",
+            "binary",
+            "-o",
+            str(out_file),
         )
         data = out_file.read_bytes()
         assert data.hex().upper() == EXPECTED_PCR10_SHA256
@@ -88,8 +94,10 @@ class TestBootAggregateCli:
         """Default output must be lowercase hex boot_aggregate."""
         result = run_script(
             BOOT_AGG_SCRIPT,
-            "--in", str(SAMPLE_PCR_LIST),
-            "-s", PCR_SELECTOR,
+            "--in",
+            str(SAMPLE_PCR_LIST),
+            "-s",
+            PCR_SELECTOR,
         )
         assert result.stdout.strip() == EXPECTED_BOOT_AGGREGATE_SHA256
 
@@ -97,9 +105,12 @@ class TestBootAggregateCli:
         """'-f HEX' must output uppercase hex."""
         result = run_script(
             BOOT_AGG_SCRIPT,
-            "--in", str(SAMPLE_PCR_LIST),
-            "-s", PCR_SELECTOR,
-            "-f", "HEX",
+            "--in",
+            str(SAMPLE_PCR_LIST),
+            "-s",
+            PCR_SELECTOR,
+            "-f",
+            "HEX",
         )
         assert result.stdout.strip() == EXPECTED_BOOT_AGGREGATE_SHA256.upper()
 
@@ -108,9 +119,12 @@ class TestBootAggregateCli:
         out_file = tmp_path / "ba.txt"
         run_script(
             BOOT_AGG_SCRIPT,
-            "--in", str(SAMPLE_PCR_LIST),
-            "-s", PCR_SELECTOR,
-            "-o", str(out_file),
+            "--in",
+            str(SAMPLE_PCR_LIST),
+            "-s",
+            PCR_SELECTOR,
+            "-o",
+            str(out_file),
         )
         assert out_file.read_text() == EXPECTED_BOOT_AGGREGATE_SHA256
 
@@ -119,10 +133,14 @@ class TestBootAggregateCli:
         out_file = tmp_path / "ba.bin"
         run_script(
             BOOT_AGG_SCRIPT,
-            "--in", str(SAMPLE_PCR_LIST),
-            "-s", PCR_SELECTOR,
-            "-f", "binary",
-            "-o", str(out_file),
+            "--in",
+            str(SAMPLE_PCR_LIST),
+            "-s",
+            PCR_SELECTOR,
+            "-f",
+            "binary",
+            "-o",
+            str(out_file),
         )
         data = out_file.read_bytes()
         assert data.hex() == EXPECTED_BOOT_AGGREGATE_SHA256
@@ -142,9 +160,12 @@ class TestBootAggregateCli:
         """A selector that doesn't include all of PCR 0-9 must cause a non-zero exit."""
         result = subprocess.run(
             [
-                sys.executable, str(BOOT_AGG_SCRIPT),
-                "--in", str(SAMPLE_PCR_LIST),
-                "-s", "sha256:0,1,2",
+                sys.executable,
+                str(BOOT_AGG_SCRIPT),
+                "--in",
+                str(SAMPLE_PCR_LIST),
+                "-s",
+                "sha256:0,1,2",
             ],
             capture_output=True,
             text=True,

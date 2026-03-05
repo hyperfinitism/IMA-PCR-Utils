@@ -2,6 +2,7 @@
 """Shared pytest fixtures providing sample IMA log and PCR blob data from examples/."""
 
 import pathlib
+
 import pytest
 
 EXAMPLES_DIR = pathlib.Path(__file__).resolve().parent.parent / "examples"
