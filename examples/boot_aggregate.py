@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 CLI tool for calculating boot_aggregate from a PCR0..PCR9 binary blob.
 """

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 IMA-PCR-Utils - Python Library
 

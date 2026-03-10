@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 CLI tool for calculating PCR10 from IMA log file.
 """

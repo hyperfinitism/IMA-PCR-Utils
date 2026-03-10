@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for imapcrutils.libs — parsing, PCR10 replay, validation, and boot_aggregate."""
 
 import hashlib

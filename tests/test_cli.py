@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for the CLI example scripts (pcr10.py, boot_aggregate.py) via subprocess."""
 
 import pathlib

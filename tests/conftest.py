@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 # pylint: disable=redefined-outer-name
 """Shared pytest fixtures providing sample IMA log and PCR blob data from examples/."""
 

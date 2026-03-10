@@ -1,12 +1,19 @@
 # IMA-PCR-Utils
 
-**IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement Architecture (IMA) and Platform Configuration Register (PCR), providing functionality for parsing IMA log entries, calculating PCR10 hash values and boot_aggregate values.
+![SemVer](https://img.shields.io/badge/imapcrutils-0.1.0-blue)
+![Python Version](https://img.shields.io/badge/Python-3.10+-blue)
+[![License](https://img.shields.io/badge/License-MIT-red)](/LICENSE)
+
+**IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement
+Architecture (IMA) and Platform Configuration Register (PCR), providing
+functionality for parsing IMA log entries, calculating PCR10 hash values and
+boot_aggregate values.
 
 ## Installation
 
 ### Requirements
 
-- Python 3.10+ (Tested with Python 3.12.3)
+- Python 3.10+
 
 ### Install from repository
 
@@ -32,7 +39,8 @@ The `imapcrutils` module consists of the following public types and functions:
 
 ### CLI Tools / Example Scripts
 
-The `examples/` directory contains scripts that serve as both usage examples and command-line tools. Sample IMA log and PCR list files are also available.
+The `examples/` directory contains scripts that serve as both usage examples
+and command-line tools. Sample IMA log and PCR list files are also available.
 
 | Script | Description |
 | ------ | ----------- |
@@ -41,10 +49,8 @@ The `examples/` directory contains scripts that serve as both usage examples and
 
 ### Compare with the true PCR10 hash value
 
-Run on the attester environment with vTPM:
-
 ```bash
-# install TPM2 Tools
+# Install TPM2 Tools
 sudo apt update
 sudo apt install -y tpm2-tools
 
@@ -54,6 +60,7 @@ newgrp tss
 ```
 
 ```bash
+# Read PCR bank
 tpm2_pcrread sha1:10
 tpm2_pcrread sha256:10
 tpm2_pcrread sha384:10
@@ -63,14 +70,15 @@ tpm2_pcrread sha384:10
 
 ### Create/update IMA policy
 
-The bundled policy `config/ima-policy` is configured to measure executable files when they are run.
+The bundled policy `config/ima-policy` is configured to measure executable
+files when they are run.
 
 ```bash
 # Make IMA directory if absent
 ls -l /etc/ima
 sudo mkdir -p /etc/ima
 
-# Create/Update IMA Policy
+# Create or update IMA policy
 sudo cp config/ima-policy /etc/ima/ima-policy
 
 # Reboot
@@ -83,7 +91,8 @@ In the bundled policy, the following rule is commented out:
 measure func=FILE_CHECK mask=MAY_READ uid=0
 ```
 
-This rule would generate an enormous volume of IMA logs, as it would measure all files read by `uid=0` (root).
+This rule would generate an enormous volume of IMA logs, as it would measure
+all files read by `uid=0` (root).
 
 ### Check if the updated policy is in effect
 
@@ -101,9 +110,12 @@ sudo cat /sys/kernel/security/ima/ascii_runtime_measurements
 
 ### Measuring scripts
 
-In order to perform runtime measurement on programmes written in scripting languages (e.g. Python) under the bundled policy, they must be pre-compiled into executable files.
+In order to perform runtime measurement on programmes written in scripting
+languages (e.g. Python) under the bundled policy, they must be pre-compiled
+into executable files.
 
-For example, you can use [nuitka](https://github.com/Nuitka/Nuitka) to compile Python scripts:
+For example, you can use [nuitka](https://github.com/Nuitka/Nuitka) to compile
+Python scripts:
 
 ```bash
 # Install Nuitka
@@ -117,7 +129,8 @@ nuitka <PYTHON_SCRIPT_FILE>.py
 
 ### Boot failure after setting IMA policy
 
-Open the serial console for the VM instance and (re)boot. If the error message like the following appears in the serial console, the IMA policy may be invalid.
+Open the serial console for the VM instance and (re)boot. If the error message
+like the following appears in the serial console, the IMA policy may be invalid.
 
 ```console
 [!!!!!!] Failed to load IMA policy.
@@ -135,7 +148,8 @@ touch /sys/kernel/security/ima/policy
 cat $IMA_POLICY_PATH > /sys/kernel/security/ima/policy
 ```
 
-If the policy is valid, the IMA policy will be loaded successfully. Otherwise, the IMA policy is invalid. Check syntax, measured items, etc.
+If the policy is valid, the IMA policy will be loaded successfully. Otherwise,
+the IMA policy is invalid. Check syntax, measured items, etc.
 
 ## Test Environments
 

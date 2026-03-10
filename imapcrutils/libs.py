@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 IMA log parsing, PCR10 calculation and boot_aggregate calculation library.
 
