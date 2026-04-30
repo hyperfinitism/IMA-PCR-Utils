@@ -14,5 +14,6 @@ from imapcrutils.libs import (
     calculate_expected_template_hash,
     calculate_pcr10,
     parse_ima_log_string,
+    truncate_ima_log_by_pcr,
     validate_ima_log_entry,
 )
