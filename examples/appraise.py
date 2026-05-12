@@ -7,7 +7,8 @@ CLI tool for appraising IMA log entries against a YAML policy.
 import argparse
 import sys
 
-from imapcrutils import AppraisalResult, appraise_ima_log, load_policy_file, parse_ima_log_string
+from imapcrutils.appraisal import AppraisalResult, appraise_ima_log, load_policy_file
+from imapcrutils.log import parse_ima_log_string
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 

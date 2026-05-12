@@ -8,7 +8,7 @@ import argparse
 import hashlib
 import sys
 
-from imapcrutils import calculate_boot_aggregate
+from imapcrutils.pcr import calculate_boot_aggregate
 
 
 def select_hash_function(hash_algorithm: str):

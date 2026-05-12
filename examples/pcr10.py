@@ -8,7 +8,8 @@ import argparse
 import hashlib
 import sys
 
-from imapcrutils import calculate_pcr10, parse_ima_log_string
+from imapcrutils.log import parse_ima_log_string
+from imapcrutils.pcr import calculate_pcr10
 
 DEFAULT_IMA_LOG_PATH = "/sys/kernel/security/ima/ascii_runtime_measurements"
 

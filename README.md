@@ -24,20 +24,42 @@ pip install git+https://github.com/acompany-develop/IMA-PCR-Utils
 
 ## What's inside
 
-### Module
+### Modules
 
-The `imapcrutils` module consists of the following public types and functions:
+The `imapcrutils` package is organized into the following modules, each with a
+focused responsibility. All public symbols are also re-exported from the
+top-level `imapcrutils` namespace for convenience.
+
+#### `imapcrutils.log` — IMA log data model and parser
 
 | Name | Description |
 | ---- | ----------- |
 | `IMALogEntry` | Represents a single IMA log entry (`pcr_idx`, `template_hash`, `template_name`, `hash_algo`, `file_hash`, `file_path`). |
 | `parse_ima_log_string` | Parse an ASCII IMA log string into a list of `IMALogEntry`. |
+
+#### `imapcrutils.template` — ima-ng template serialization and template_hash
+
+| Name | Description |
+| ---- | ----------- |
 | `build_template_fields` | Build `ima-ng` template fields (digest/name) from an `IMALogEntry`. |
 | `calculate_expected_template_hash` | Recompute the expected template hash for an entry (default: SHA-1). |
+| `validate_ima_log_entry` | Validate a single entry by comparing the template hash with the recomputed value. |
+
+#### `imapcrutils.pcr` — PCR10 replay and boot_aggregate
+
+| Name | Description |
+| ---- | ----------- |
 | `calculate_pcr10` | Replay PCR10 by extending PCR10 with each `ima-ng` entry (default chain hash: SHA-256). |
 | `truncate_ima_log_by_pcr` | Truncate the IMA log at the point where the calculated PCR matches the reference value. |
-| `validate_ima_log_entry` | Validate a single entry by comparing the template hash with the recomputed value. |
 | `calculate_boot_aggregate` | Calculate `boot_aggregate` from PCR0..PCR9 values. |
+
+#### `imapcrutils.appraisal` — IMA log appraisal against a YAML policy
+
+Subpackage split into `policy` (data model), `loader` (YAML parsing), and
+`appraise` (policy evaluation).
+
+| Name | Description |
+| ---- | ----------- |
 | `AppraisalResult` | Verdict (`ALLOW` / `DENY` / `NEUTRAL`) for a single IMA log entry against an appraisal policy. |
 | `PolicyComponent` | A single named component of an appraisal policy (`name`, `path` glob, optional `allow`/`deny` hash sets). |
 | `AppraisalPolicy` | An ordered collection of `PolicyComponent`s; the first matching component decides the verdict for an entry. |
