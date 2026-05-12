@@ -17,3 +17,12 @@ from imapcrutils.libs import (
     truncate_ima_log_by_pcr,
     validate_ima_log_entry,
 )
+from imapcrutils.verify import (
+    AppraisalPolicy,
+    AppraisalResult,
+    PolicyComponent,
+    appraise_ima_log,
+    load_policy,
+    load_policy_file,
+    verify_ima_log,
+)
