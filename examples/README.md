@@ -44,7 +44,7 @@ where vTPM is available.
 python pcr10.py
 
 # Replay PCR10 from the sample IMA log file
-python pcr10.py -i ascii_runtime_measurements
+python pcr10.py -i sample_input/ascii_runtime_measurements
 ```
 
 ## truncate_log
@@ -81,12 +81,55 @@ the matching entry.
 
 ```shell
 # Truncate IMA log using reference PCR10 from pcrlist_2.bin
-python truncate_pcr10.py -i ascii_runtime_measurements_2 -p c5bfcd40187bfc190fe9c584b8b2675f08180c0e9579255fa9eba91e7d18f678
+python truncate_pcr10.py -i sample_input/ascii_runtime_measurements_2 -p c5bfcd40187bfc190fe9c584b8b2675f08180c0e9579255fa9eba91e7d18f678
 
 # Save truncated log to file
-python truncate_pcr10.py -i ascii_runtime_measurements_2 \
+python truncate_pcr10.py -i sample_input/ascii_runtime_measurements_2 \
   -p c5bfcd40187bfc190fe9c584b8b2675f08180c0e9579255fa9eba91e7d18f678 \
   -o truncated_measurements.txt
+```
+
+## appraise
+
+### Usage
+
+```shell
+python appraise.py [-i $IMA_LOG_PATH] -p $POLICY_PATH [-s $SHOW] [-o $OUTPUT_PATH]
+```
+
+```shell
+python appraise.py [--in $IMA_LOG_PATH] --policy $POLICY_PATH [--show $SHOW] [--out $OUTPUT_PATH]
+```
+
+### Required Arguments
+
+- `-p, --policy`: Path to the YAML appraisal policy file
+
+### Options
+
+- `-i, --in`: Path to the IMA log file (default: `/sys/kernel/security/ima/ascii_runtime_measurements`)
+- `-s, --show`: Which verdicts to print: `all`, `deny`, `non-allow` (deny +
+  neutral) (default: `deny`)
+- `-o, --out`: Path to the output file (default: stdout)
+
+### Description
+
+This tool classifies each IMA log entry against a YAML appraisal policy and
+prints the selected verdicts as tab-separated `<verdict>\t<hash>\t<path>` lines.
+A summary is written to stderr. Exit status is `0` when no entry is denied,
+`1` when at least one entry is denied, and `2` on I/O or policy parse errors.
+
+See [appraise_policy.yaml](appraise_policy.yaml) for the policy format.
+
+### Example
+
+```shell
+# Print all denied entries (default) for the sample IMA log
+python appraise.py -i sample_input/ascii_runtime_measurements -p sample_input/appraise_policy.yaml
+
+# Show every verdict
+python appraise.py -i sample_input/ascii_runtime_measurements \
+  -p appraise_policy.yaml -s all
 ```
 
 ## boot-aggregate
@@ -121,5 +164,5 @@ python boot_aggregate.py --in $PCR_LIST_PATH --selector $SELECTOR [--hash-algori
 
 ```shell
 # Calculate boot_aggregate from the sample PCR list file
-python boot_aggregate.py --in pcr_list.bin -s sha256:0,1,2,3,4,5,6,7,8,9,10,12,14,23
+python boot_aggregate.py --in sample_input/pcrlist.bin -s sha256:0,1,2,3,4,5,6,7,8,9,10,12,14,23
 ```

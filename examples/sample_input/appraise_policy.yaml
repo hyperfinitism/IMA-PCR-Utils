@@ -1,0 +1,9 @@
+boot_aggregate:
+  path: boot_aggregate
+  allow: [088faac4777b024045bd578c5c3f8efc4ac2cafb4af90a12832a762feb58eb88]
+
+kernel_modules:
+  path: "*/**/autofs4.ko.zst"
+  allow:
+    - bbdbca85a82cf96aad024bdfedaa4fcc791d857b338b6f7c5a4625bce0118ac4
+    - cf06a09ff00ee3275779e83cf9a4037dd822ba9dc16442584212f605ba71e341

@@ -7,7 +7,8 @@
 **IMA-PCR-Utils** (`imapcrutils`) is a Python library for Integrity Measurement
 Architecture (IMA) and Platform Configuration Register (PCR), providing
 functionality for parsing IMA log entries, calculating PCR10 hash values and
-boot_aggregate values.
+boot_aggregate values, and appraising IMA log entries against a YAML allow/deny
+policy.
 
 ## Installation
 
@@ -37,6 +38,13 @@ The `imapcrutils` module consists of the following public types and functions:
 | `truncate_ima_log_by_pcr` | Truncate the IMA log at the point where the calculated PCR matches the reference value. |
 | `validate_ima_log_entry` | Validate a single entry by comparing the template hash with the recomputed value. |
 | `calculate_boot_aggregate` | Calculate `boot_aggregate` from PCR0..PCR9 values. |
+| `AppraisalResult` | Verdict (`ALLOW` / `DENY` / `NEUTRAL`) for a single IMA log entry against an appraisal policy. |
+| `PolicyComponent` | A single named component of an appraisal policy (`name`, `path` glob, optional `allow`/`deny` hash sets). |
+| `AppraisalPolicy` | An ordered collection of `PolicyComponent`s; the first matching component decides the verdict for an entry. |
+| `load_policy` | Parse a YAML appraisal policy string into an `AppraisalPolicy`. |
+| `load_policy_file` | Load an `AppraisalPolicy` from a YAML file on disk. |
+| `appraise_ima_log` | Classify each IMA log entry against an appraisal policy, returning `(entry, verdict)` pairs. |
+| `verify_ima_log` | Return `True` when no IMA log entry is denied by the policy. |
 
 ### CLI Tools / Example Scripts
 
@@ -48,6 +56,7 @@ and command-line tools. Sample IMA log and PCR list files are also available.
 | `pcr10.py` | Calculate PCR10 from input IMA log |
 | `truncate_log.py` | Truncate IMA log at the point where the calculated PCR matches the reference value |
 | `boot_aggregate.py` | Calculate boot_aggregate from PCR list file including PCR[0-9] |
+| `appraise.py` | Appraise IMA log entries against a YAML allow/deny policy |
 
 ### Compare with the true PCR10 hash value
 

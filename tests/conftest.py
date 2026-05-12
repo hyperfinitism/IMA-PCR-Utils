@@ -6,7 +6,7 @@ import pathlib
 
 import pytest
 
-EXAMPLES_DIR = pathlib.Path(__file__).resolve().parent.parent / "examples"
+EXAMPLES_DIR = pathlib.Path(__file__).resolve().parent.parent / "examples" / "sample_input"
 
 
 @pytest.fixture
@@ -23,8 +23,8 @@ def sample_ima_log(sample_ima_log_path):
 
 @pytest.fixture
 def sample_pcr_list_path():
-    """Path to the sample pcr_list.bin file."""
-    return EXAMPLES_DIR / "pcr_list.bin"
+    """Path to the sample pcrlist.bin file."""
+    return EXAMPLES_DIR / "pcrlist.bin"
 
 
 @pytest.fixture
