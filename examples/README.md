@@ -47,6 +47,48 @@ python pcr10.py
 python pcr10.py -i ascii_runtime_measurements
 ```
 
+## truncate_log
+
+### Usage
+
+```shell
+python truncate_log.py [-i $IMA_LOG_PATH] -p $PCR_HEX [-a $HASH_ALGORITHM] [-o $OUTPUT_PATH]
+```
+
+```shell
+python truncate_log.py [--in $IMA_LOG_PATH] --pcr10 $PCR_HEX [--hash-algorithm $HASH_ALGORITHM] [--out $OUTPUT_PATH]
+```
+
+### Options
+
+- `-i, --in`: Path to the IMA log file (default: `/sys/kernel/security/ima/ascii_runtime_measurements`)
+- `-p, --pcr`: Reference PCR value in hex format (required)
+- `-a, --hash-algorithm`: Hash algorithm used for PCR calculation: `sha1`, `sha256`, `sha384`, `sha512` (default: `sha256`)
+- `-o, --out`: Path to the output file (default: stdout)
+
+### Description
+
+This tool truncates an IMA log to find the point where the calculated PCR value
+matches a reference PCR value. It's useful for identifying which IMA log entries
+are relevant to a particular PCR measurement from a TPM.
+
+The function filters entries for PCR index "10" and "ima-ng" template only, then
+extends the PCR value incrementally until it finds a match with the reference.
+Returns the sublist of entries from the beginning up to and including
+the matching entry.
+
+### Example
+
+```shell
+# Truncate IMA log using reference PCR10 from pcrlist_2.bin
+python truncate_pcr10.py -i ascii_runtime_measurements_2 -p c5bfcd40187bfc190fe9c584b8b2675f08180c0e9579255fa9eba91e7d18f678
+
+# Save truncated log to file
+python truncate_pcr10.py -i ascii_runtime_measurements_2 \
+  -p c5bfcd40187bfc190fe9c584b8b2675f08180c0e9579255fa9eba91e7d18f678 \
+  -o truncated_measurements.txt
+```
+
 ## boot-aggregate
 
 ### Usage

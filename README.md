@@ -34,6 +34,7 @@ The `imapcrutils` module consists of the following public types and functions:
 | `build_template_fields` | Build `ima-ng` template fields (digest/name) from an `IMALogEntry`. |
 | `calculate_expected_template_hash` | Recompute the expected template hash for an entry (default: SHA-1). |
 | `calculate_pcr10` | Replay PCR10 by extending PCR10 with each `ima-ng` entry (default chain hash: SHA-256). |
+| `truncate_ima_log_by_pcr` | Truncate the IMA log at the point where the calculated PCR matches the reference value. |
 | `validate_ima_log_entry` | Validate a single entry by comparing the template hash with the recomputed value. |
 | `calculate_boot_aggregate` | Calculate `boot_aggregate` from PCR0..PCR9 values. |
 
@@ -45,6 +46,7 @@ and command-line tools. Sample IMA log and PCR list files are also available.
 | Script | Description |
 | ------ | ----------- |
 | `pcr10.py` | Calculate PCR10 from input IMA log |
+| `truncate_log.py` | Truncate IMA log at the point where the calculated PCR matches the reference value |
 | `boot_aggregate.py` | Calculate boot_aggregate from PCR list file including PCR[0-9] |
 
 ### Compare with the true PCR10 hash value

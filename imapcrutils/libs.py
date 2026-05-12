@@ -11,6 +11,7 @@ __all__ = [
     "build_template_fields",
     "calculate_expected_template_hash",
     "calculate_pcr10",
+    "truncate_ima_log_by_pcr",
     "validate_ima_log_entry",
     "calculate_boot_aggregate",
 ]
@@ -163,6 +164,41 @@ def calculate_pcr10(entries: list[IMALogEntry], hash_func: Callable[[bytes], byt
         # PCR_new = HASH( PCR_old || Template_Hash )
         pcr_value = hash_func(pcr_value + expected_template_hash).digest()
     return pcr_value
+
+
+def truncate_ima_log_by_pcr(
+    entries: list[IMALogEntry], pcr: bytes, hash_func: Callable[[bytes], bytes] = hashlib.sha256
+) -> list[IMALogEntry] | None:
+    """
+    Find the point in the IMA log where the calculated PCR10 matches the reference value.
+
+    Filters IMA log entries for PCR index "10" and "ima-ng" template, then extends
+    the PCR value incrementally. Returns the sublist of valid entries from the
+    beginning up to and including the entry where the PCR value matches the reference.
+    Returns None if no match is found.
+
+    Args:
+        entries: List of IMALogEntry objects to process
+        pcr: Reference PCR value to match against
+        hash_func: Hash function for PCR extension (default: hashlib.sha256)
+
+    Returns:
+        List of IMALogEntry objects from the beginning up to the matching entry,
+        or None if the reference PCR value is not found
+    """
+    results = []
+    pcr_value = bytes(hash_func().digest_size)
+    for entry in entries:
+        if entry.pcr_idx != "10":
+            continue
+        if entry.template_name != "ima-ng":
+            continue
+        results.append(entry)
+        template_hash = calculate_expected_template_hash(entry, hash_func)
+        pcr_value = hash_func(pcr_value + template_hash).digest()
+        if pcr_value == pcr:
+            return results
+    return None
 
 
 def validate_ima_log_entry(entry: IMALogEntry, hash_func: Callable[[bytes], bytes] = hashlib.sha1) -> bool:
